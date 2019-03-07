@@ -1,0 +1,50 @@
+{{ if (.Values.FDK_INGRESSROUTER) and .Values.FDK_INGRESSROUTER "true" }}
+apiVersion: extensions/v1beta1
+kind: Ingress
+metadata:
+  name: {{ required "Missing value FDK_INGRESSNAME" .Values.FDK_INGRESSNAME }}
+  namespace: {{ required "Missing value NAMESPACE" .Values.NAMESPACE }}
+  annotations:
+    nginx.ingress.kubernetes.io/rewrite-target: /
+    kubernetes.io/ingress.global-static-ip-name: {{ required "Missing value FDK_INGRESS_IP_NAME" .Values.FDK_INGRESS_IP_NAME }}
+    ingress.gcp.kubernetes.io/pre-shared-cert: {{ required "Missing value FDK_ALL_CERT_NAMES" .Values.FDK_ALL_CERT_NAMES | quote }}
+spec:
+  rules:
+  - host: {{ required "Missing value FDK_INGRESS_HOSTNAME_REG" .Values.FDK_INGRESS_HOSTNAME_REG }}
+    http:
+      paths:
+      - path: /*
+        backend:
+          serviceName: nginx-registration
+          servicePort: 8080
+  - host: {{ required "Missing value FDK_INGRESS_HOSTNAME_WWW" .Values.FDK_INGRESS_HOSTNAME_WWW }}
+    http:
+      paths:
+      - path: /*
+        backend:
+          serviceName: nginx-search
+          servicePort: 8080
+  - host: {{ required "Missing value FDK_INGRESS_HOSTNAME_HARVESTER" .Values.FDK_INGRESS_HOSTNAME_HARVESTER }}
+    http:
+      paths:
+      - path: /*
+        backend:
+          serviceName: harvester
+          servicePort: 8080
+  - host: {{ required "Missing value FDK_INGRESS_HOSTNAME_ENV" .Values.FDK_INGRESS_HOSTNAME_ENV }}
+    http:
+      paths:
+      - backend:
+          serviceName: nginx-search
+          servicePort: 8080
+        path: /*
+  tls:
+  - hosts:
+    - {{ required "Missing value FDK_INGRESS_HOSTNAME_REG" .Values.FDK_INGRESS_HOSTNAME_REG }}
+    - {{ required "Missing value FDK_INGRESS_HOSTNAME_WWW" .Values.FDK_INGRESS_HOSTNAME_WWW }}
+    - {{ required "Missing value FDK_INGRESS_HOSTNAME_HARVESTER" .Values.FDK_INGRESS_HOSTNAME_HARVESTER }}
+    secretName: {{ required "Missing value FDK_CERT_NAME_BASE" .Values.FDK_CERT_NAME_BASE }}
+  - hosts:
+    - {{ required "Missing value FDK_INGRESS_HOSTNAME_ENV" .Values.FDK_INGRESS_HOSTNAME_ENV }}
+    secretName: {{ required "Missing value FDK_CERT_NAME_ENV" .Values.FDK_CERT_NAME_ENV }}
+{{ else }} {{ end }}

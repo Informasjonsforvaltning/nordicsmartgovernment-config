@@ -1,0 +1,37 @@
+apiVersion: extensions/v1beta1
+kind: Deployment
+metadata:
+  creationTimestamp: null
+  labels:
+    fdk.service: informationmodel-cat
+  name: informationmodel-cat
+  namespace: {{ required "Missing value NAMESPACE" .Values.NAMESPACE }}
+spec:
+  replicas: 1
+  strategy: {}
+  template:
+    metadata:
+      creationTimestamp: null
+      labels:
+        fdk.service: informationmodel-cat
+    spec:
+      containers:
+      - env:
+        - name: FDK_ES_CLUSTERNAME
+          value: {{ required "Missing value FDK_ES_CLUSTERNAME" .Values.FDK_ES_CLUSTERNAME }}
+        - name: FDK_ES_CLUSTERNODES
+          value: {{ required "Missing value FDK_ES_CLUSTERNODES" .Values.FDK_ES_CLUSTERNODES }}
+        - name: SPRING_PROFILES_ACTIVE
+          value: {{ required "Missing value SPRING_PROFILES_ACTIVE" .Values.SPRING_PROFILES_ACTIVE }}
+        - name: FDK_ALTINN_MODELS_URL
+          value: {{ required "Missing value FDK_ALTINN_MODELS_URL" .Values.FDK_ALTINN_MODELS_URL }}
+        image: {{ required "Missing value INFORMATIONMODEL_CAT_IMAGE" .Values.INFORMATIONMODEL_CAT_IMAGE }}
+        imagePullPolicy: Always
+        name: informationmodel-cat
+        ports:
+        - containerPort: 8080
+        resources:
+          requests:
+            memory: {{ required "Missing value FDK_INFORMATIONMODEL_CAT_MEMORY" .Values.FDK_INFORMATIONMODEL_CAT_MEMORY | quote }}
+      restartPolicy: Always
+status: {}
