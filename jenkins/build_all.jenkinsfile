@@ -33,7 +33,7 @@ pr_status("pending", after, "Jenkins is considering what to do..", currentBuild.
 def check_all_images(def service_and_hashes) {
   String script_all = ""
   service_and_hashes.each{service, checksum ->
-    def command = "(gcloud container images describe eu.gcr.io/fdk-infra/${service}:${checksum} > /dev/null 2>&1) && echo '${service} ${checksum}' || echo '${service} YES' &"
+    def command = "(gcloud container images describe eu.gcr.io/nsg-infra/${service}:${checksum} > /dev/null 2>&1) && echo '${service} ${checksum}' || echo '${service} YES' &"
     script_all = script_all + command + "\n"
   }
   // All gcloud is spawned as separate process to speed things up, mostly network waiting.
@@ -62,7 +62,7 @@ def do_checksums(services) {
     checkout ( [$class: 'GitSCM',
           branches: [[name: after ]],
           userRemoteConfigs: [[
-              credentialsId: 'systemjenkinsfdk',
+              credentialsId: 'bjg',
               url: url]]])
     services.each { app, value ->
       checksum = wrapper.script (
@@ -104,7 +104,7 @@ def service_to_template_name(service) {
 def get_values_images_text(checksums) {
     def lines = []
     checksums.each{ key, value ->
-        String line = service_to_template_name(key) + ": " + "eu.gcr.io/fdk-infra/${key}:" + value
+        String line = service_to_template_name(key) + ": " + "eu.gcr.io/nsg-infra/${key}:" + value
         lines.add(line)
     }
     //fjern hvis ikke elasticsearch skal brukes
@@ -161,7 +161,7 @@ node ('helm-kubectl'){
       checkout ( [$class: 'GitSCM',
           branches: [[name: after ]],
           userRemoteConfigs: [[
-              credentialsId: 'systemjenkinsfdk',
+              credentialsId: 'bjg',
               url: url]]])
 
       output = wrapper.script(script:'''#!/usr/bin/env bash
@@ -207,10 +207,10 @@ done
     if (pull_request_url == "") {
       stage('Check if PR duplicate') {
         container('helm-gcloud-kubectl') {
-          withCredentials([file(credentialsId: 'fdk-infra-file', variable: 'SA')]) {
+          withCredentials([file(credentialsId: 'nsg-infra-file', variable: 'SA')]) {
             sh returnStatus: true, script: 'gcloud auth activate-service-account --key-file $SA'
           }
-          def found = sh(returnStatus: true, script: "gsutil cp gs://fdk-infra-jenkins/pr/${after} .")
+          def found = sh(returnStatus: true, script: "gsutil cp gs://nsg-infra-jenkins/pr/${after} .")
           if (found==0) {
             currentBuild.displayName = "duplicate - ${after}"
             currentBuild.result = 'ABORTED'
@@ -251,14 +251,14 @@ done
       writeFile file: "values_images.yaml", text: values_images_text
       writeFile file: filename , text: values_images_text
       archiveArtifacts artifacts: 'values_images.yaml', excludes: "no/**"
-      build_masterversion_location = "fdk-infra-masterversions/all/${filename}"
-      googleStorageUpload(credentialsId: "fdk-infra",
-                          bucket: "gs://fdk-infra-masterversions/all",
+      build_masterversion_location = "nsg-infra-masterversions/all/${filename}"
+      googleStorageUpload(credentialsId: "nsg-infra",
+                          bucket: "gs://nsg-infra-masterversions/all",
                           pattern: filename)
       if (branch_ref == 'heads/develop') {
-        build_masterversion_location = "fdk-infra-masterversions/develop/${filename}"
-        googleStorageUpload(credentialsId: "fdk-infra",
-                            bucket: "gs://fdk-infra-masterversions/develop",
+        build_masterversion_location = "nsg-infra-masterversions/develop/${filename}"
+        googleStorageUpload(credentialsId: "nsg-infra",
+                            bucket: "gs://nsg-infra-masterversions/develop",
                             pattern: filename)
       }
     } // stage: master version
@@ -288,13 +288,13 @@ done
       //            message: slack_msg
       pr_status("success", after, "Build is ok!", currentBuild.absoluteUrl)
       container('helm-gcloud-kubectl') {
-        withCredentials([file(credentialsId: 'fdk-infra-file', variable: 'SA')]) {
+        withCredentials([file(credentialsId: 'nsg-infra-file', variable: 'SA')]) {
           sh returnStatus: true, script: 'gcloud auth activate-service-account --key-file $SA'
         }
         checksums.each{ key, value ->
           def commands = [
-          "gcloud -q container images add-tag eu.gcr.io/fdk-infra/${key}:${value} eu.gcr.io/fdk-infra/${key}:branch_${branch_name}_${yearmonthdate}",
-          "gcloud -q container images add-tag eu.gcr.io/fdk-infra/${key}:${value} eu.gcr.io/fdk-infra/${key}:branch_${branch_name}_latest"
+          "gcloud -q container images add-tag eu.gcr.io/nsg-infra/${key}:${value} eu.gcr.io/nsg-infra/${key}:branch_${branch_name}_${yearmonthdate}",
+          "gcloud -q container images add-tag eu.gcr.io/nsg-infra/${key}:${value} eu.gcr.io/nsg-infra/${key}:branch_${branch_name}_latest"
           ]
 
           def tag_service = commands.join("\n")
@@ -318,7 +318,7 @@ def buildProject(String app, String checksum, String compile, String branch_name
           checkout ( [$class: 'GitSCM',
                 branches: [[name: after ]],
                 userRemoteConfigs: [[
-                    credentialsId: 'systemjenkinsfdk',
+                    credentialsId: 'bjg',
                     url: url]]])
         }
     }
@@ -332,7 +332,7 @@ def buildProject(String app, String checksum, String compile, String branch_name
         } // container
       } else {
         container('java-docker') {
-          nodejs(nodeJSInstallationName: 'fdk-node') {
+          nodejs(nodeJSInstallationName: 'nsg-node') {
             sh "npm config set unsafe-perm true"
             echo "Gonna execute: ${compile}"
             sh "(${compile})"
@@ -342,9 +342,9 @@ def buildProject(String app, String checksum, String compile, String branch_name
     } // stage: build
     stage("Push ${app} to registry") {
       container('java-docker') {
-        docker.withRegistry('https://eu.gcr.io', 'gcr:fdk-infra') {
-          sh "docker tag dcatno/${app}:latest fdk-infra/${app}:${checksum}"
-          def customImage = docker.image("fdk-infra/${app}:${checksum}")
+        docker.withRegistry('https://eu.gcr.io', 'gcr:nsg-infra') {
+          sh "docker tag dcatno/${app}:latest nsg-infra/${app}:${checksum}"
+          def customImage = docker.image("nsg-infra/${app}:${checksum}")
           /* Push the container to the custom Registry */
           customImage.push()
         }

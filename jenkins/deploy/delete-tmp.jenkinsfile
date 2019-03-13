@@ -4,7 +4,7 @@ It does so by nuking the entire namespace.
 */
 @Library('utils') _
 
-master_versions_location_base = """gs://fdk-infra-masterversions"""
+master_versions_location_base = """gs://nsg-infra-masterversions"""
 
 if (!params.tmp_env.startsWith("tmp") ) {
   error("${params.tmp_env} is not a tmp environment.")
@@ -22,7 +22,7 @@ if (sleep_time < 0) {
 }
 
 currentBuild.displayName = "${currentBuild.number} - ${params.tmp_env}: Delete"
-def gcp_project_name = "fdk-e2e"
+def gcp_project_name = "nsg-e2e"
 // Long wait.
 echo "Will delete in ${params.delete_after_minutes} minutes."
 

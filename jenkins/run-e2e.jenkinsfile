@@ -1,10 +1,10 @@
 @Library('utils') _
 
-master_versions_location_base = """gs://fdk-infra-masterversions"""
+master_versions_location_base = """gs://nsg-infra-masterversions"""
 
 def pr_status(def status, def sha, def text, def t_url, def context = "continuous-integration/e2e_tests") {
     // status error, failure, pending, success
-    def pr_url = "https://api.github.com/repos/Informasjonsforvaltning/fdk/statuses/" + sha
+    def pr_url = "https://api.github.com/repos/Informasjonsforvaltning/nordicsmartgovernment/statuses/" + sha
     def body = """{
   "state": "$status",
   "target_url": "$t_url",
@@ -56,9 +56,9 @@ try {
   stage ('Get env details') {
     node('helm-kubectl') {
       container('helm-gcloud-kubectl') {
-        def gcp_project_name = "fdk-e2e"
+        def gcp_project_name = "nsg-e2e"
 
-        withCredentials([file(credentialsId: 'fdk-infra-file', variable: 'SA')]) {
+        withCredentials([file(credentialsId: 'nsg-infra-file', variable: 'SA')]) {
           sh returnStatus: true, script: 'gcloud auth activate-service-account --key-file $SA'
         }
         def full_mv = hash_to_masterversion(masterversion)
@@ -67,7 +67,7 @@ try {
         // Copy the masrterversion to this jenkins node.
         sh returnStatus: true, script: "gsutil cp ${mv_path} ."
         def output = sh (script: "cat ${full_mv}.yaml | grep E2E_IMAGE", returnStdout: true).trim().split(" ")
-        // Ex: E2E_IMAGE: eu.gcr.io/fdk-infra/e2e:95a51b77912ba33b3c9babe88d8695f786b6bc3c
+        // Ex: E2E_IMAGE: eu.gcr.io/nsg-infra/e2e:95a51b77912ba33b3c9babe88d8695f786b6bc3c
         e2e_image = output[1]
         echo e2e_image
 
@@ -93,13 +93,13 @@ try {
             echo "Still waiting for ingress to come up."
           }
         }
-        host_fdk = "${deploy_environment}-www.fellesdatakatalog.brreg.no"
-        reg_fdk = "${deploy_environment}-reg.fellesdatakatalog.brreg.no"
+        host_nsg = "${deploy_environment}-www.nordicsmartgovernment.brreg.no"
+        reg_nsg = "${deploy_environment}-reg.nordicsmartgovernment.brreg.no"
 
         // all these 3 are globals.
         echo ingress_ip
-        echo host_fdk
-        echo reg_fdk
+        echo host_nsg
+        echo reg_nsg
       }
     }
   }
@@ -114,13 +114,13 @@ try {
     }
     node('jenkins-maven') {
       container('java-docker') {
-        docker.withRegistry('https://eu.gcr.io', 'gcr:fdk-infra') {
+        docker.withRegistry('https://eu.gcr.io', 'gcr:nsg-infra') {
           sh """
           cat > run.sh <<EOF
-          echo "${ingress_ip} ${host_fdk}" >> /etc/hosts
-          echo "${ingress_ip} ${reg_fdk}" >> /etc/hosts
+          echo "${ingress_ip} ${host_nsg}" >> /etc/hosts
+          echo "${ingress_ip} ${reg_nsg}" >> /etc/hosts
           cat /etc/hosts
-          export HOST_SEARCH=http://${host_fdk}
+          export HOST_SEARCH=http://${host_nsg}
           export BROWSER=google-chrome-unstable
           npm t"""
           echo "----run.sh----"

@@ -3,7 +3,7 @@
 stage ('Delete env') {
   node('helm-kubectl') {
     container('helm-gcloud-kubectl') {
-      def gcp_project_name = "fdk-e2e"
+      def gcp_project_name = "nsg-e2e"
 
       withCredentials([file(credentialsId: "${gcp_project_name}-k8s", variable: 'SA')]) {
         sh returnStatus: true, script: 'gcloud auth activate-service-account --key-file $SA'

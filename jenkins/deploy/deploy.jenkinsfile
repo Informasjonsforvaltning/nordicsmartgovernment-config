@@ -5,7 +5,7 @@
 
 def masterversion = "unknown"
 def deploy_environment = "unknown"
-master_versions_location_base = """gs://fdk-infra-masterversions"""
+master_versions_location_base = """gs://nsg-infra-masterversions"""
 
 if (params.deploy_environment == "prod" && params.deploy_environment != params.prod_safeword) {
   error("You need to type ${params.deploy_environment} in prod_safeword")
@@ -30,11 +30,11 @@ def get_masterversion_location(def env) {
 
 def get_project_fom_env(def env){
   if (env=="prod") {
-    return "fdk-prod"
+    return "nsg-prod"
   } else if (env.startsWith("tmp")) {
-    return "fdk-e2e"
+    return "nsg-e2e"
   }
-  return "fdk-dev"
+  return "nsg-dev"
 }
 def get_host_from_env(def env) {
   if (env=="prod") {
@@ -88,12 +88,12 @@ def generate_tag_commands(def outputImagesToTag, def de) {
   def yearmonthdatehhmm = new Date().format( 'yyyyMMdd_HHmm' )
   outputImagesToTag.eachLine {
     def line = it
-    def service_and_tag = (line =~ /^eu.gcr.io\/fdk-infra\/(.*?):(.*?)$/)
+    def service_and_tag = (line =~ /^eu.gcr.io\/nsg-infra\/(.*?):(.*?)$/)
     if (service_and_tag) {
       def service = service_and_tag[0][1]
       def tag = service_and_tag[0][2]
-      tag_commands.add("gcloud -q container images add-tag ${line} eu.gcr.io/fdk-infra/${service}:env_${de}_latest &")
-      tag_commands.add("gcloud -q container images add-tag ${line} eu.gcr.io/fdk-infra/${service}:env_${de}_${yearmonthdatehhmm} &")
+      tag_commands.add("gcloud -q container images add-tag ${line} eu.gcr.io/nsg-infra/${service}:env_${de}_latest &")
+      tag_commands.add("gcloud -q container images add-tag ${line} eu.gcr.io/nsg-infra/${service}:env_${de}_${yearmonthdatehhmm} &")
     }
   }
   return tag_commands
@@ -146,8 +146,8 @@ stage('Getting versions and environment') {
           def versions = output.trim().tokenize( '\n' )
           try {
             // Tries to sort by build build_number
-            // gs://fdk-infra-masterversions/develop/664_2018-11-13T13_56_04-7373e359d7e16d5dc82aa56d5e3cdafad15c929a.yaml
-            // gs://fdk-infra-masterversions/develop/foo/bar/123/664_2018-11-13T13_56_04-7373e359d7e16d5dc82aa56d5e3cdafad15c929a.yaml
+            // gs://nsg-infra-masterversions/develop/664_2018-11-13T13_56_04-7373e359d7e16d5dc82aa56d5e3cdafad15c929a.yaml
+            // gs://nsg-infra-masterversions/develop/foo/bar/123/664_2018-11-13T13_56_04-7373e359d7e16d5dc82aa56d5e3cdafad15c929a.yaml
             // 664 is build number.
             //
             versions.sort{ it.minus(master_versions_location).split("_")[0].replace("-","_").split("_")[0].split("/")[-1].toInteger() }
@@ -157,7 +157,7 @@ stage('Getting versions and environment') {
           // gsutil ls prints in lexial order, so newest is last.
           versions.reverseEach {
             def line = it
-            // gs://fdk-infra-masterversions/all/20181025-ci-cd-a368fb8ab852e679cba7b601d6d7f3c42af27d71.yaml
+            // gs://nsg-infra-masterversions/all/20181025-ci-cd-a368fb8ab852e679cba7b601d6d7f3c42af27d71.yaml
             def result = (line =~ /^$master_versions_location\/(.*)\.yaml$/)
             if (result) {
               def v_all = result[0][1]
@@ -216,7 +216,7 @@ node ('helm-kubectl'){
     }
 
     stage('Grab Masterversion') {
-      withCredentials([file(credentialsId: 'fdk-infra-file', variable: 'SA')]) {
+      withCredentials([file(credentialsId: 'nsg-infra-file', variable: 'SA')]) {
         sh returnStatus: true, script: 'gcloud auth activate-service-account --key-file $SA'
       }
       // Copy the masrterversion to this jenkins node. Altså copy it to deployed and current folder for this env,
@@ -243,8 +243,8 @@ node ('helm-kubectl'){
         gcloud config set compute/region europe-north1-a
         gcloud config set compute/zone europe-north1
         """)
-      sh returnStatus: true, script: 'git clone https://github.com/Informasjonsforvaltning/fdk-config.git'
-      sh returnStatus: true, script: "helm template -f values_environment.yaml -f ${masterversion}.yaml fdk-config/helm/ > kubectlapply.yaml"
+      sh returnStatus: true, script: 'git clone https://github.com/Informasjonsforvaltning/nordicsmartgovernment-config.git'
+      sh returnStatus: true, script: "helm template -f values_environment.yaml -f ${masterversion}.yaml nordicsmartgovernment-config/helm/ > kubectlapply.yaml"
       sh returnStatus: true, script: 'cat kubectlapply.yaml'
     } // stage Authenticating wiht cluster
 
@@ -254,15 +254,15 @@ node ('helm-kubectl'){
 
         def backup_label = "${BUILD_ID}-" + yearmonthdate
         def backupscript = """
-            gcloud compute --project fdk-prod disks snapshot "fdk-prod-elasticsearch5" --snapshot-names "autogcs-autodeploy-prod-elasticsearch5-${backup_label}" --zone "europe-north1-a &"
-            gcloud compute --project fdk-prod disks snapshot "fdk-prod-fuseki" --snapshot-names "autogcs-autodeploy-prod-fuseki-${backup_label}" --zone "europe-north1-a &"
-            gcloud compute --project fdk-prod disks snapshot "fdk-prod-registration-api" --snapshot-names "autogcs-autodeploy-prod-registration-api-${backup_label}" --zone "europe-north1-a &"
-            gcloud compute --project fdk-prod disks snapshot "fdk-prod-reference-data" --snapshot-names "autogcs-autodeploy-prod-reference-data-${backup_label}" --zone "europe-north1-a &"
+            gcloud compute --project nsg-prod disks snapshot "nsg-prod-elasticsearch5" --snapshot-names "autogcs-autodeploy-prod-elasticsearch5-${backup_label}" --zone "europe-north1-a &"
+            gcloud compute --project nsg-prod disks snapshot "nsg-prod-fuseki" --snapshot-names "autogcs-autodeploy-prod-fuseki-${backup_label}" --zone "europe-north1-a &"
+            gcloud compute --project nsg-prod disks snapshot "nsg-prod-registration-api" --snapshot-names "autogcs-autodeploy-prod-registration-api-${backup_label}" --zone "europe-north1-a &"
+            gcloud compute --project nsg-prod disks snapshot "nsg-prod-reference-data" --snapshot-names "autogcs-autodeploy-prod-reference-data-${backup_label}" --zone "europe-north1-a &"
             wait
-            gcloud compute --project fdk-prod snapshots add-labels "autogcs-autodeploy-prod-elasticsearch5-${backup_label}" --labels="snapshotdays="14"" &
-            gcloud compute --project fdk-prod snapshots add-labels "autogcs-autodeploy-prod-fuseki-${backup_label}" --labels="snapshotdays="14"" &
-            gcloud compute --project fdk-prod snapshots add-labels "autogcs-autodeploy-prod-registration-api-${backup_label}" --labels="snapshotdays="14"" &
-            gcloud compute --project fdk-prod snapshots add-labels "autogcs-autodeploy-prod-reference-data-${backup_label}" --labels="snapshotdays="14"" &"""
+            gcloud compute --project nsg-prod snapshots add-labels "autogcs-autodeploy-prod-elasticsearch5-${backup_label}" --labels="snapshotdays="14"" &
+            gcloud compute --project nsg-prod snapshots add-labels "autogcs-autodeploy-prod-fuseki-${backup_label}" --labels="snapshotdays="14"" &
+            gcloud compute --project nsg-prod snapshots add-labels "autogcs-autodeploy-prod-registration-api-${backup_label}" --labels="snapshotdays="14"" &
+            gcloud compute --project nsg-prod snapshots add-labels "autogcs-autodeploy-prod-reference-data-${backup_label}" --labels="snapshotdays="14"" &"""
             echo "Running: " + backupscript
 
             wrapper.script(stepName: "Backup prod.",
@@ -278,7 +278,7 @@ node ('helm-kubectl'){
 
     stage('Tagging version') {
       if (!tmp_env) {
-        withCredentials([file(credentialsId: 'fdk-infra-file', variable: 'SA')]) {
+        withCredentials([file(credentialsId: 'nsg-infra-file', variable: 'SA')]) {
           sh returnStatus: true, script: 'gcloud auth activate-service-account --key-file $SA'
         }
         def tag_script = "gsutil cp ${master_versions_location}/${masterversion}.yaml ." // dont run in background, needed sync.
@@ -291,8 +291,8 @@ node ('helm-kubectl'){
         tag_script = tag_script + "\n" + "gsutil cp ${master_versions_location}/${masterversion}.yaml ${master_versions_location_base}/deployed/${deploy_environment}/current/${masterversion}.yaml"
 
         def outputImagesToTag = wrapper.script (returnStdout: true,
-                                                script: "cat ${masterversion}.yaml | grep -o 'eu.gcr.io/fdk-infra.*'",
-                                                stepName: "Show fdk services only")
+                                                script: "cat ${masterversion}.yaml | grep -o 'eu.gcr.io/nsg-infra.*'",
+                                                stepName: "Show nordicsmartgovernment services only")
         def tag_commands = generate_tag_commands(outputImagesToTag, deploy_environment)
         tag_commands.add("wait")
         tag_script = tag_script + "\n" + tag_commands.join('\n')

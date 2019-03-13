@@ -7,7 +7,7 @@ Note that you can only rollback once.
 */
 @Library('utils') _
 
-master_versions_location_base = """gs://fdk-infra-masterversions"""
+master_versions_location_base = """gs://nsg-infra-masterversions"""
 
 if (params.rollback_environment == "prod" && params.rollback_environment != params.prod_safeword) {
   error("You need to type ${params.rollback_environment} in prod_safeword")

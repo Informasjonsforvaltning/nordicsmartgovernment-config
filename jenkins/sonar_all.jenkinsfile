@@ -2,7 +2,7 @@
 
 // Take params from build with params.
 after = "develop"
-url = "https://github.com/Informasjonsforvaltning/fdk"
+url = "https://github.com/Informasjonsforvaltning/nordicsmartgovernment"
 ref = "heads/develop"
 
 node ('jenkins-maven'){
@@ -41,7 +41,7 @@ node ('jenkins-maven'){
       checkout ( [$class: 'GitSCM',
           branches: [[name: after ]],
           userRemoteConfigs: [[
-              credentialsId: 'systemjenkinsfdk',
+              credentialsId: 'bjg',
               url: url]]])
 
       output = wrapper.script(script:'''#!/usr/bin/env bash
@@ -62,8 +62,8 @@ done
             def build_instructions = line_tokens.drop(1).join(' ')
             if (build_instructions.startsWith("mvn")) {
               sh build_instructions.tokenize('&')[0].trim() + " -DskipDocker"
-              withCredentials([string(credentialsId: 'fdk-sonar-token', variable: 'TOKEN')]) {
-                withSonarQubeEnv('fdk-sonar') {
+              withCredentials([string(credentialsId: 'nsg-sonar-token', variable: 'TOKEN')]) {
+                withSonarQubeEnv('nsg-sonar') {
                   sh "cd applications/${service} && mvn clean install sonar:sonar" // -Dsonar.host.url=http://35.228.10.20 -Dsonar.login=$TOKEN"
                 }
               }

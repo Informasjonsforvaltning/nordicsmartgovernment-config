@@ -1,6 +1,6 @@
 @Library('utils') _
 
-master_versions_location_base = """gs://fdk-infra-masterversions"""
+master_versions_location_base = """gs://nsg-infra-masterversions"""
 
 echo "promoting env " + params.promote_environment
 currentBuild.displayName = "${currentBuild.number} - ${params.promote_environment}: Promote"

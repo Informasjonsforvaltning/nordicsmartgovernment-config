@@ -1,6 +1,6 @@
 @Library('utils') _
 
-master_versions_location_base = """gs://fdk-infra-masterversions"""
+master_versions_location_base = """gs://nsg-infra-masterversions"""
 
 @NonCPS
 def should_delete(tag) {
@@ -47,7 +47,7 @@ def ensure_deploy_and_rollback_versions_exist(def folder) {
 node ('helm-kubectl'){
   container('helm-gcloud-kubectl') {
     stage('Init') {
-      withCredentials([file(credentialsId: 'fdk-infra-file', variable: 'SA')]) {
+      withCredentials([file(credentialsId: 'nsg-infra-file', variable: 'SA')]) {
         sh returnStatus: true, script: 'gcloud auth activate-service-account --key-file $SA'
       }
     }
@@ -55,7 +55,7 @@ node ('helm-kubectl'){
     def yearmonthdate = (new Date() - 60).format( 'yyyy-MM-dd' )
 
     stage('Getting images..') {
-      def base_image_url = "eu.gcr.io/fdk-infra"
+      def base_image_url = "eu.gcr.io/nsg-infra"
       echo "Going to delete versions older than ${yearmonthdate} that has not gone to prod."
       images = sh (
                       script: "gcloud container images list --repository=${base_image_url} | grep ${base_image_url}",
