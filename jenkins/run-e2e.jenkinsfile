@@ -58,7 +58,7 @@ try {
       container('helm-gcloud-kubectl') {
         def gcp_project_name = "nsg-e2e"
 
-        withCredentials([file(credentialsId: 'nsg-infra-file', variable: 'SA')]) {
+        withCredentials([file(credentialsId: 'fdk-infra-file', variable: 'SA')]) {
           sh returnStatus: true, script: 'gcloud auth activate-service-account --key-file $SA'
         }
         def full_mv = hash_to_masterversion(masterversion)

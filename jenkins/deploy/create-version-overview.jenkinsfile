@@ -34,7 +34,7 @@ node ('helm-kubectl'){
                             bucket: "${master_versions_location_base}/deployed",
                             pattern: "env_table.html")
 
-      withCredentials([file(credentialsId: 'nsg-infra-file', variable: 'SA')]) {
+      withCredentials([file(credentialsId: 'fdk-infra-file', variable: 'SA')]) {
         sh returnStatus: true, script: 'gcloud auth activate-service-account --key-file $SA'
       }
       wrapper.script( stepName: "Set file access",

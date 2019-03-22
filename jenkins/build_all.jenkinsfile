@@ -207,7 +207,7 @@ done
     if (pull_request_url == "") {
       stage('Check if PR duplicate') {
         container('helm-gcloud-kubectl') {
-          withCredentials([file(credentialsId: 'nsg-infra-file', variable: 'SA')]) {
+          withCredentials([file(credentialsId: 'fdk-infra-file', variable: 'SA')]) {
             sh returnStatus: true, script: 'gcloud auth activate-service-account --key-file $SA'
           }
           def found = sh(returnStatus: true, script: "gsutil cp gs://nsg-infra-jenkins/pr/${after} .")
@@ -288,7 +288,7 @@ done
       //            message: slack_msg
       pr_status("success", after, "Build is ok!", currentBuild.absoluteUrl)
       container('helm-gcloud-kubectl') {
-        withCredentials([file(credentialsId: 'nsg-infra-file', variable: 'SA')]) {
+        withCredentials([file(credentialsId: 'fdk-infra-file', variable: 'SA')]) {
           sh returnStatus: true, script: 'gcloud auth activate-service-account --key-file $SA'
         }
         checksums.each{ key, value ->
