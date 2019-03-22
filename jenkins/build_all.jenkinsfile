@@ -252,12 +252,12 @@ done
       writeFile file: filename , text: values_images_text
       archiveArtifacts artifacts: 'values_images.yaml', excludes: "no/**"
       build_masterversion_location = "nsg-infra-masterversions/all/${filename}"
-      googleStorageUpload(credentialsId: "nsg-infra",
+      googleStorageUpload(credentialsId: "fdk-infra",
                           bucket: "gs://nsg-infra-masterversions/all",
                           pattern: filename)
       if (branch_ref == 'heads/develop') {
         build_masterversion_location = "nsg-infra-masterversions/develop/${filename}"
-        googleStorageUpload(credentialsId: "nsg-infra",
+        googleStorageUpload(credentialsId: "fdk-infra",
                             bucket: "gs://nsg-infra-masterversions/develop",
                             pattern: filename)
       }

@@ -30,7 +30,7 @@ node ('helm-kubectl'){
       echo html
       writeFile file: "env_table.html" , text: html
 
-      googleStorageUpload(credentialsId: "nsg-infra",
+      googleStorageUpload(credentialsId: "fdk-infra",
                             bucket: "${master_versions_location_base}/deployed",
                             pattern: "env_table.html")
 
