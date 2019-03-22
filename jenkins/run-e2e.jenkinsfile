@@ -114,7 +114,7 @@ try {
     }
     node('jenkins-maven') {
       container('java-docker') {
-        docker.withRegistry('https://eu.gcr.io', 'gcr:nsg-infra') {
+        docker.withRegistry('https://eu.gcr.io', 'gcr:fdk-infra') {
           sh """
           cat > run.sh <<EOF
           echo "${ingress_ip} ${host_nsg}" >> /etc/hosts
