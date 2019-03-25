@@ -343,6 +343,7 @@ def buildProject(String app, String checksum, String compile, String branch_name
     stage("Push ${app} to registry") {
       container('java-docker') {
         docker.withRegistry('https://eu.gcr.io', 'gcr:fdk-infra') {
+          sh "docker pull nsg/${app}:latest"
           sh "docker tag nsg/${app}:latest nsg-infra/${app}:${checksum}"
           def customImage = docker.image("nsg-infra/${app}:${checksum}")
           /* Push the container to the custom Registry */
