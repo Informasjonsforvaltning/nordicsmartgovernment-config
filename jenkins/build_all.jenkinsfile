@@ -107,9 +107,6 @@ def get_values_images_text(checksums) {
         String line = service_to_template_name(key) + ": " + "eu.gcr.io/nsg-infra/${key}:" + value
         lines.add(line)
     }
-    //fjern hvis ikke elasticsearch skal brukes
-    lines.add("ES5_BUSY_IMAGE: busybox")
-    lines.add("ES5_IMAGE: docker.elastic.co/elasticsearch/elasticsearch:5.6.9")
     return lines.join("\n")
 }
 
@@ -274,18 +271,18 @@ done
           build job: 'run-e2e', wait: false , parameters: [[$class: 'StringParameterValue', name: 'masterversion', value: after]]
       }
       if (branch_ref == 'heads/develop') {
-//        slack_msg = slack_msg + " - <${JENKINS_URL}job/deploy-scripts/job/deploy/parambuild/?masterversion=${after}|Deploy now> - btw, I already started deploying to ut1!"
+        slack_msg = slack_msg + " - <${JENKINS_URL}job/nsg_deploy-scripts/job/deploy/parambuild/?masterversion=${after}|Deploy now> - btw, I already started deploying to ut1!"
 
         //slack og deploy ikke aktivisert i første omgang
         slack_msg = slack_msg + " - Started deploying version to ut1!"
-        //build job: 'deploy-scripts/autodeploy_from_development', wait: false , parameters: [[$class: 'StringParameterValue', name: 'after', value: after]]
+        build job: 'nsg_deploy-scripts/autodeploy_from_development', wait: false , parameters: [[$class: 'StringParameterValue', name: 'after', value: after]]
 
       } else {
-        slack_msg = slack_msg + " - <${JENKINS_URL}job/deploy-scripts/job/deploy/parambuild/?masterversion=${after}&deploy_environment=tmp|Deploy to tmp env> .  <https://storage.cloud.google.com/${build_masterversion_location}|View masterversion>"
+        slack_msg = slack_msg + " - <${JENKINS_URL}job/nsg_deploy-scripts/job/deploy/parambuild/?masterversion=${after}&deploy_environment=tmp|Deploy to tmp env> .  <https://storage.cloud.google.com/${build_masterversion_location}|View masterversion>"
       }
-      //slackSend   channel: '#jenkins',
-      //            color: 'good',
-      //            message: slack_msg
+      slackSend   channel: '#jenkins',
+                  color: 'good',
+                  message: slack_msg
       pr_status("success", after, "Build is ok!", currentBuild.absoluteUrl)
       container('helm-gcloud-kubectl') {
         withCredentials([file(credentialsId: 'fdk-infra-file', variable: 'SA')]) {
