@@ -380,15 +380,15 @@ except Exception as e:
           if (params.tmp_env_delete_minutes.isNumber()) {
             delete_in_minutes = params.tmp_env_delete_minutes
           }
-          build job: 'delete-tmp', wait: false, parameters: [[$class: 'StringParameterValue', name: 'tmp_env', value: deploy_environment],
-                                                            [$class: 'StringParameterValue', name: 'delete_after_minutes', value: delete_in_minutes]]
+          build job: 'nsg_delete-tmp', wait: false, parameters: [[$class: 'StringParameterValue', name: 'tmp_env', value: deploy_environment],
+                                                                 [$class: 'StringParameterValue', name: 'delete_after_minutes', value: delete_in_minutes]]
         } else {
           echo "No env deletion scheduled."
         }
       }
     }
     stage("Generate env version files") {
-      build job: 'create-version-overview', wait: false
+      build job: 'nsg_create-version-overview', wait: false
     }
   }
 }

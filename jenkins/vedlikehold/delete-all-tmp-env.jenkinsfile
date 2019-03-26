@@ -21,8 +21,8 @@ stage ('Delete env') {
         lines.each{ line ->
           if (line.startsWith("tmp")) {
             def env_name = line.split(" ")[0]
-            build job: 'deploy-scripts/delete-tmp', wait: false, parameters: [[$class: 'StringParameterValue', name: 'tmp_env', value: env_name],
-                                                              [$class: 'StringParameterValue', name: 'delete_after_minutes', value: "1"]]
+            build job: 'nsg_deploy-scripts/nsg_delete-tmp', wait: false, parameters: [[$class: 'StringParameterValue', name: 'tmp_env', value: env_name],
+                                                                                      [$class: 'StringParameterValue', name: 'delete_after_minutes', value: "1"]]
           }
         }
       }

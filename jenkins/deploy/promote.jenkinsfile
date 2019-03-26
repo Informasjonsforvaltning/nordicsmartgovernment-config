@@ -53,7 +53,7 @@ stage("Notify slack") {
 }
 
 stage('Trigger deploy job') {
-    build job: 'deploy', parameters: [[$class: 'StringParameterValue', name: 'deploy_environment', value: promote_env],
-                                      [$class: 'StringParameterValue', name: 'masterversion', value: masterversion],
-                                      [$class: 'StringParameterValue', name: 'prod_safeword', value: params.prod_safeword]]
+    build job: 'nsg_deploy', parameters: [[$class: 'StringParameterValue', name: 'deploy_environment', value: promote_env],
+                                          [$class: 'StringParameterValue', name: 'masterversion', value: masterversion],
+                                          [$class: 'StringParameterValue', name: 'prod_safeword', value: params.prod_safeword]]
 }
