@@ -1,0 +1,25 @@
+apiVersion: extensions/v1beta1
+kind: Deployment
+metadata:
+  creationTimestamp: null
+  labels:
+    fdk.service: nsg-test
+  name: nsg-test
+  namespace: {{ required "Missing value NAMESPACE" .Values.NAMESPACE }}
+spec:
+  replicas: 1
+  strategy: {}
+  template:
+    metadata:
+      creationTimestamp: null
+      labels:
+        fdk.service: nsg-test
+    spec:
+      containers:
+        image: {{ required "Missing value NSG_TEST_IMAGE" .Values.NSG_TEST_IMAGE }}
+        imagePullPolicy: Always
+        name: nsg-test
+        ports:
+        - containerPort: 8080
+      restartPolicy: Always
+status: {}
