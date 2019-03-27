@@ -3,8 +3,8 @@ kind: Service
 metadata:
   creationTimestamp: null
   labels:
-    fdk.service: nsg-test
-  name: nsg-test
+    nsg.service: nsg-referenceimplementation
+  name: nsg-referenceimplementation
   namespace: {{ required "Missing value NAMESPACE" .Values.NAMESPACE }}
 spec:
   type: NodePort
@@ -13,6 +13,6 @@ spec:
     port: 8080
     targetPort: 8080
   selector:
-    fdk.service: nsg-test
+    nsg.service: nsg-referenceimplementation
 status:
   loadBalancer: {}

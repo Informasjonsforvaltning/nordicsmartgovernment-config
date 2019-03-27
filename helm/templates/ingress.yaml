@@ -10,39 +10,16 @@ metadata:
     ingress.gcp.kubernetes.io/pre-shared-cert: {{ required "Missing value NSG_ALL_CERT_NAMES" .Values.NSG_ALL_CERT_NAMES | quote }}
 spec:
   rules:
-  - host: {{ required "Missing value NSG_INGRESS_HOSTNAME_REG" .Values.NSG_INGRESS_HOSTNAME_REG }}
-    http:
-      paths:
-      - path: /*
-        backend:
-          serviceName: nginx-registration
-          servicePort: 8080
-  - host: {{ required "Missing value NSG_INGRESS_HOSTNAME_WWW" .Values.NSG_INGRESS_HOSTNAME_WWW }}
-    http:
-      paths:
-      - path: /*
-        backend:
-          serviceName: nginx-search
-          servicePort: 8080
-  - host: {{ required "Missing value NSG_INGRESS_HOSTNAME_HARVESTER" .Values.NSG_INGRESS_HOSTNAME_HARVESTER }}
-    http:
-      paths:
-      - path: /*
-        backend:
-          serviceName: harvester
-          servicePort: 8080
   - host: {{ required "Missing value NSG_INGRESS_HOSTNAME_ENV" .Values.NSG_INGRESS_HOSTNAME_ENV }}
     http:
       paths:
-      - backend:
-          serviceName: nginx-search
+      - path: /*
+        backend:
+          serviceName: nsg-referenceimplementation
           servicePort: 8080
-        path: /*
   tls:
   - hosts:
-    - {{ required "Missing value NSG_INGRESS_HOSTNAME_REG" .Values.NSG_INGRESS_HOSTNAME_REG }}
-    - {{ required "Missing value NSG_INGRESS_HOSTNAME_WWW" .Values.NSG_INGRESS_HOSTNAME_WWW }}
-    - {{ required "Missing value NSG_INGRESS_HOSTNAME_HARVESTER" .Values.NSG_INGRESS_HOSTNAME_HARVESTER }}
+    - {{ required "Missing value NSG_INGRESS_HOSTNAME_ENV" .Values.NSG_INGRESS_HOSTNAME_ENV }}
     secretName: {{ required "Missing value NSG_CERT_NAME_BASE" .Values.NSG_CERT_NAME_BASE }}
   - hosts:
     - {{ required "Missing value NSG_INGRESS_HOSTNAME_ENV" .Values.NSG_INGRESS_HOSTNAME_ENV }}

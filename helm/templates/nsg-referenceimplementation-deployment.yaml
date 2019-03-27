@@ -3,8 +3,8 @@ kind: Deployment
 metadata:
   creationTimestamp: null
   labels:
-    fdk.service: nsg-test
-  name: nsg-test
+    nsg.service: nsg-referenceimplementation
+  name: nsg-referenceimplementation
   namespace: {{ required "Missing value NAMESPACE" .Values.NAMESPACE }}
 spec:
   replicas: 1
@@ -13,12 +13,12 @@ spec:
     metadata:
       creationTimestamp: null
       labels:
-        fdk.service: nsg-test
+        nsg.service: nsg-referenceimplementation
     spec:
       containers:
-        image: {{ required "Missing value NSG_TEST_IMAGE" .Values.NSG_TEST_IMAGE }}
+        image: {{ required "Missing value REFERENCEIMPLEMENTATION_IMAGE" .Values.REFERENCEIMPLEMENTATION_IMAGE }}
         imagePullPolicy: Always
-        name: nsg-test
+        name: nsg-referenceimplementation
         ports:
         - containerPort: 8080
       restartPolicy: Always
