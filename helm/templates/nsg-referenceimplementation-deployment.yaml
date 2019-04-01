@@ -16,13 +16,13 @@ spec:
         nsg.service: nsg-referenceimplementation
     spec:
       containers:
-        - name: nsg-referenceimplementation
-          image: {{ required "Missing value REFERENCEIMPLEMENTATION_IMAGE" .Values.REFERENCEIMPLEMENTATION_IMAGE }}
-          imagePullPolicy: Always
-          ports:
-            - containerPort: 8080
-          resources:
-            requests:
-              memory: {{ required "Missing value NSG_REFERENCEIMPLEMENTATION_MEMORY" .Values.NSG_REFERENCEIMPLEMENTATION_MEMORY | quote }}
+      - name: nsg-referenceimplementation
+        image: {{ required "Missing value REFERENCEIMPLEMENTATION_IMAGE" .Values.REFERENCEIMPLEMENTATION_IMAGE }}
+        imagePullPolicy: Always
+        ports:
+          - containerPort: 8080
+        resources:
+          requests:
+            memory: {{ required "Missing value NSG_REFERENCEIMPLEMENTATION_MEMORY" .Values.NSG_REFERENCEIMPLEMENTATION_MEMORY | quote }}
       restartPolicy: Always
 status: {}
