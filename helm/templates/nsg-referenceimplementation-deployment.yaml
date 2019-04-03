@@ -1,7 +1,6 @@
 apiVersion: extensions/v1beta1
 kind: Deployment
 metadata:
-  creationTimestamp: null
   labels:
     nsg.service: nsg-referenceimplementation
   name: nsg-referenceimplementation
@@ -11,7 +10,6 @@ spec:
   strategy: {}
   template:
     metadata:
-      creationTimestamp: null
       labels:
         nsg.service: nsg-referenceimplementation
     spec:
