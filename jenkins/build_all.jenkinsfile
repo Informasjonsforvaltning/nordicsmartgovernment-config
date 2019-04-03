@@ -13,7 +13,7 @@ echo "Rerun link: ${JOB_URL}parambuild/?ref=${ref}&after=${after}&before=${befor
 
 def pr_status(def status, def sha, def text, def t_url, def context = "continuous-integration/jenkins") {
     // status error, failure, pending, success
-    def pr_url = "https://api.github.com/repos/Informasjonsforvaltning/nordicsmartgovernment/statuses/" + sha
+    def pr_url = "https://api.github.com/repos/nordicsmartgovernment/nordicsmartgovernment/statuses/" + sha
     def body = """{
   "state": "$status",
   "target_url": "$t_url",

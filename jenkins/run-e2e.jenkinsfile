@@ -4,7 +4,7 @@ master_versions_location_base = """gs://nsg-infra-masterversions"""
 
 def pr_status(def status, def sha, def text, def t_url, def context = "continuous-integration/e2e_tests") {
     // status error, failure, pending, success
-    def pr_url = "https://api.github.com/repos/Informasjonsforvaltning/nordicsmartgovernment/statuses/" + sha
+    def pr_url = "https://api.github.com/repos/nordicsmartgovernment/nordicsmartgovernment/statuses/" + sha
     def body = """{
   "state": "$status",
   "target_url": "$t_url",

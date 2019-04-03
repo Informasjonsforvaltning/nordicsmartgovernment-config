@@ -243,7 +243,7 @@ node ('helm-kubectl'){
         gcloud config set compute/region europe-north1-a
         gcloud config set compute/zone europe-north1
         """)
-      sh returnStatus: true, script: 'git clone https://github.com/Informasjonsforvaltning/nordicsmartgovernment-config.git'
+      sh returnStatus: true, script: 'git clone https://github.com/nordicsmartgovernment/nordicsmartgovernment-config.git'
       sh returnStatus: true, script: "helm template -f values_environment.yaml -f ${masterversion}.yaml nordicsmartgovernment-config/helm/ > kubectlapply.yaml"
       sh returnStatus: true, script: 'cat kubectlapply.yaml'
     } // stage Authenticating wiht cluster

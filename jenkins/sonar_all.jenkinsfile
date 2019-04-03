@@ -2,7 +2,7 @@
 
 // Take params from build with params.
 after = "develop"
-url = "https://github.com/Informasjonsforvaltning/nordicsmartgovernment"
+url = "https://github.com/nordicsmartgovernment/nordicsmartgovernment"
 ref = "heads/develop"
 
 node ('jenkins-maven'){
