@@ -12,7 +12,7 @@ def pr_status(def status, def sha, def text, def t_url, def context = "continuou
   "context": "$context"
 }"""
     try {
-        httpRequest authentication: "jenkins-github", httpMode: 'POST', requestBody: body,  url: pr_url
+        httpRequest authentication: "systemjenkins", httpMode: 'POST', requestBody: body,  url: pr_url
     } catch (e) {
         echo "Failed updating status of " + sha
     }
