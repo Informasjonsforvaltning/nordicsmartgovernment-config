@@ -14,7 +14,20 @@ spec:
         nsg.service: nsg-referenceimplementation
     spec:
       containers:
-      - name: nsg-referenceimplementation
+      - env:
+        - name: NSG_POSTGRES_DB
+          value: {{ required "Missing value NSG_POSTGRES_DB" .Values.NSG_POSTGRES_DB }}
+        - name: NSG_POSTGRES_HOST
+          value: {{ required "Missing value NSG_POSTGRES_HOST" .Values.NSG_POSTGRES_HOST }}
+        - name: NSG_POSTGRES_DBO_USER
+          value: {{ required "Missing value NSG_POSTGRES_DBO_USER" .Values.NSG_POSTGRES_DBO_USER }}
+        - name: NSG_POSTGRES_DBO_PASSWORD
+          value: {{ required "Missing value NSG_POSTGRES_DBO_PASSWORD" .Values.NSG_POSTGRES_DBO_PASSWORD }}
+        - name: NSG_POSTGRES_USER
+          value: {{ required "Missing value NSG_POSTGRES_USER" .Values.NSG_POSTGRES_USER }}
+        - name: NSG_POSTGRES_PASSWORD
+          value: {{ required "Missing value NSG_POSTGRES_PASSWORD" .Values.NSG_POSTGRES_PASSWORD }}
+        name: nsg-referenceimplementation
         image: {{ required "Missing value REFERENCEIMPLEMENTATION_IMAGE" .Values.REFERENCEIMPLEMENTATION_IMAGE }}
         imagePullPolicy: Always
         ports:
