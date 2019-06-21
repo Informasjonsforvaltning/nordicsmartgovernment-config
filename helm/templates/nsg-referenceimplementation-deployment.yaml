@@ -15,10 +15,8 @@ spec:
     spec:
       containers:
       - env:
-        - name: NSG_POSTGRES_DB
-          value: {{ required "Missing value NSG_POSTGRES_DB" .Values.NSG_POSTGRES_DB }}
-        - name: NSG_POSTGRES_HOST
-          value: {{ required "Missing value NSG_POSTGRES_HOST" .Values.NSG_POSTGRES_HOST }}
+        - name: NSG_POSTGRES_DB_URL
+          value: {{ required "Missing value NSG_POSTGRES_DB_URL" .Values.NSG_POSTGRES_DB_URL }}
         - name: NSG_POSTGRES_DBO_USER
           value: {{ required "Missing value NSG_POSTGRES_DBO_USER" .Values.NSG_POSTGRES_DBO_USER }}
         - name: NSG_POSTGRES_DBO_PASSWORD
