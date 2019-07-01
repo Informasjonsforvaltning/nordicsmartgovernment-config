@@ -230,7 +230,7 @@ done
         } catch (e) {
           slackSend   channel: '#jenkins',
                       color: 'danger',
-                      message: "Branch: ${branch_name} (${after_short}) by ${name} failed to build. <${currentBuild.absoluteUrl}|Link>"
+                      message: "(NSG) Branch: ${branch_name} (${after_short}) by ${name} failed to build. <${currentBuild.absoluteUrl}|Link>"
           pr_status("failure", after, "Build failed!", currentBuild.absoluteUrl)
           throw e
         }
@@ -264,7 +264,7 @@ done
     stage('Tag images') {
       String yearmonthdate = global_ymd
 
-      def slack_msg = "<${BUILD_URL}|${currentBuild.displayName}> (${after_short}) by ${name} was just built in " + currentBuild.durationString
+      def slack_msg = "(NSG) <${BUILD_URL}|${currentBuild.displayName}> (${after_short}) by ${name} was just built in " + currentBuild.durationString
 
       // its a pull request.
       if (pull_request_url != "") {
