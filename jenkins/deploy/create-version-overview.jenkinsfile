@@ -30,9 +30,7 @@ node ('helm-kubectl'){
       echo html
       writeFile file: "env_table.html" , text: html
 
-      googleStorageUpload(credentialsId: "fdk-infra",
-                            bucket: "${master_versions_location_base}/deployed",
-                            pattern: "env_table.html")
+      sh "gsutil cp env_table.html gs://${master_versions_location_base}/deployed"
 
       withCredentials([file(credentialsId: 'fdk-infra-file', variable: 'SA')]) {
         sh returnStatus: true, script: 'gcloud auth activate-service-account --key-file $SA'
