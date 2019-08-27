@@ -62,7 +62,7 @@ def do_checksums(services) {
     checkout ( [$class: 'GitSCM',
           branches: [[name: after ]],
           userRemoteConfigs: [[
-              credentialsId: 'bjg',
+              credentialsId: 'systemjenkinsfdk',
               url: url]]])
     services.each { app, value ->
       checksum = wrapper.script (
@@ -158,7 +158,7 @@ node ('helm-kubectl'){
       checkout ( [$class: 'GitSCM',
           branches: [[name: after ]],
           userRemoteConfigs: [[
-              credentialsId: 'bjg',
+              credentialsId: 'systemjenkinsfdk',
               url: url]]])
 
       output = wrapper.script(script:'''#!/usr/bin/env bash
@@ -316,7 +316,7 @@ def buildProject(String app, String checksum, String compile, String branch_name
           checkout ( [$class: 'GitSCM',
                 branches: [[name: after ]],
                 userRemoteConfigs: [[
-                    credentialsId: 'bjg',
+                    credentialsId: 'systemjenkinsfdk',
                     url: url]]])
         }
     }
