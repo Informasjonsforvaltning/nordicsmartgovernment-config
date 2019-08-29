@@ -86,7 +86,7 @@ def generate_tag_commands(def outputImagesToTag, def de) {
   def yearmonthdatehhmm = new Date().format( 'yyyyMMdd_HHmm' )
   outputImagesToTag.eachLine {
     def line = it
-    def service_and_tag = (line =~ /^eu.gcr.io\/nsg-infra\/(.*?):(.*?)$/)
+    def service_and_tag = (line =~ /^eu.gcr.io\/fdk-infra\/(.*?):(.*?)$/)
     if (service_and_tag) {
       def service = service_and_tag[0][1]
       def tag = service_and_tag[0][2]
@@ -143,11 +143,6 @@ stage('Getting versions and environment') {
                            script: "gsutil ls ${master_versions_location}/*.yaml")
           def versions = output.trim().tokenize( '\n' )
           try {
-            // Tries to sort by build build_number
-            // gs://nsg-infra-masterversions/develop/664_2018-11-13T13_56_04-7373e359d7e16d5dc82aa56d5e3cdafad15c929a.yaml
-            // gs://nsg-infra-masterversions/develop/foo/bar/123/664_2018-11-13T13_56_04-7373e359d7e16d5dc82aa56d5e3cdafad15c929a.yaml
-            // 664 is build number.
-            //
             versions.sort{ it.minus(master_versions_location).split("_")[0].replace("-","_").split("_")[0].split("/")[-1].toInteger() }
           } catch (e) {
             echo "Failed custom sorting.  This means that 999 can show before 1000, etc."
@@ -155,7 +150,6 @@ stage('Getting versions and environment') {
           // gsutil ls prints in lexial order, so newest is last.
           versions.reverseEach {
             def line = it
-            // gs://nsg-infra-masterversions/all/20181025-ci-cd-a368fb8ab852e679cba7b601d6d7f3c42af27d71.yaml
             def result = (line =~ /^$master_versions_location\/(.*)\.yaml$/)
             if (result) {
               def v_all = result[0][1]
@@ -268,7 +262,7 @@ node ('helm-kubectl'){
         tag_script = tag_script + "\n" + "gsutil cp ${master_versions_location}/${masterversion}.yaml ${master_versions_location_base}/deployed/${deploy_environment}/current/${masterversion}.yaml"
 
         def outputImagesToTag = wrapper.script (returnStdout: true,
-                                                script: "cat ${masterversion}.yaml | grep -o 'eu.gcr.io/nsg-infra.*'",
+                                                script: "cat ${masterversion}.yaml | grep -o 'eu.gcr.io/fdk-infra.*'",
                                                 stepName: "Show nordicsmartgovernment services only")
         def tag_commands = generate_tag_commands(outputImagesToTag, deploy_environment)
         tag_commands.add("wait")
