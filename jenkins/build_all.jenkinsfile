@@ -33,7 +33,7 @@ pr_status("pending", after, "Jenkins is considering what to do..", currentBuild.
 def check_all_images(def service_and_hashes) {
   String script_all = ""
   service_and_hashes.each{service, checksum ->
-    def command = "(gcloud container images describe eu.gcr.io/nsg-infra/${service}:${checksum} > /dev/null 2>&1) && echo '${service} ${checksum}' || echo '${service} YES' &"
+    def command = "(gcloud container images describe eu.gcr.io/fdk-infra/${service}:${checksum} > /dev/null 2>&1) && echo '${service} ${checksum}' || echo '${service} YES' &"
     script_all = script_all + command + "\n"
   }
   // All gcloud is spawned as separate process to speed things up, mostly network waiting.
@@ -104,7 +104,7 @@ def service_to_template_name(service) {
 def get_values_images_text(checksums) {
     def lines = []
     checksums.each{ key, value ->
-        String line = service_to_template_name(key) + ": " + "eu.gcr.io/nsg-infra/${key}:" + value
+        String line = service_to_template_name(key) + ": " + "eu.gcr.io/fdk-infra/${key}:" + value
         lines.add(line)
     }
     return lines.join("\n")
@@ -211,7 +211,7 @@ done
           if (found==0) {
             currentBuild.displayName = "duplicate - ${after}"
             currentBuild.result = 'ABORTED'
-            error("This version is already beeing built from a PR webhook.  Aborting duplicate build")
+            error("This version is already being built from a PR webhook.  Aborting duplicate build")
             return
           } else {
             echo "No PR data found this is not a duplicate (ignore previous file not found error)"
@@ -291,8 +291,8 @@ done
         }
         checksums.each{ key, value ->
           def commands = [
-          "gcloud -q container images add-tag eu.gcr.io/nsg-infra/${key}:${value} eu.gcr.io/nsg-infra/${key}:branch_${branch_name}_${yearmonthdate}",
-          "gcloud -q container images add-tag eu.gcr.io/nsg-infra/${key}:${value} eu.gcr.io/nsg-infra/${key}:branch_${branch_name}_latest"
+          "gcloud -q container images add-tag eu.gcr.io/fdk-infra/${key}:${value} eu.gcr.io/fdk-infra/${key}:branch_${branch_name}_${yearmonthdate}",
+          "gcloud -q container images add-tag eu.gcr.io/fdk-infra/${key}:${value} eu.gcr.io/fdk-infra/${key}:branch_${branch_name}_latest"
           ]
 
           def tag_service = commands.join("\n")
@@ -343,8 +343,8 @@ def buildProject(String app, String checksum, String compile, String branch_name
           withCredentials([file(credentialsId: 'fdk-infra-file', variable: 'SA')]) {
               sh returnStatus: true, script: 'gcloud auth activate-service-account --key-file $SA'
           }
-          sh "docker tag nsg/${app}:latest eu.gcr.io/nsg-infra/${app}:${checksum}"
-          sh "docker push eu.gcr.io/nsg-infra/${app}:${checksum}"
+          sh "docker tag nsg/${app}:latest eu.gcr.io/fdk-infra/${app}:${checksum}"
+          sh "docker push eu.gcr.io/fdk-infra/${app}:${checksum}"
       }
     } // stage: push..
 
