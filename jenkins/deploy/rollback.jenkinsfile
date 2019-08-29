@@ -9,7 +9,7 @@ Note that you can only rollback once.
 
 master_versions_location_base = """gs://nsg-infra-masterversions"""
 
-if (params.rollback_environment == "prod" && params.rollback_environment != params.prod_safeword) {
+if (params.rollback_environment == "demo" && params.rollback_environment != params.prod_safeword) {
   error("You need to type ${params.rollback_environment} in prod_safeword")
   return
 }
@@ -44,7 +44,7 @@ node ('helm-kubectl'){
 stage("Notify slack") {
   slackSend   channel: '#jenkins',
               color: 'warning',
-              message: "Rollback started on ${params.rollback_environment} to version: ${masterversion}"
+              message: "(NSG) Rollback started on ${params.rollback_environment} to version: ${masterversion}"
 }
 
 stage('Trigger deploy job') {

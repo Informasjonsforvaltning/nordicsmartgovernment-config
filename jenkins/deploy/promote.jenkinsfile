@@ -31,14 +31,8 @@ stage('Get env version') {
 }
 
 def get_promote_env(def current) {
-    if (current == "it1") {
-        return "prod"
-    }
-    if (current == "st1") {
-        return "it1"
-    }
     if (current == "ut1") {
-        return "st1"
+        return "demo"
     }
     error("Not able to promote this env.")
     return ""
@@ -49,7 +43,7 @@ def promote_env = get_promote_env(params.promote_environment)
 stage("Notify slack") {
   slackSend   channel: '#jenkins',
               color: 'good',
-              message: "${params.promote_environment} - ${masterversion} is beeing promoted to ${promote_env}"
+              message: "(NSG) ${params.promote_environment} - ${masterversion} is beeing promoted to ${promote_env}"
 }
 
 stage('Trigger deploy job') {

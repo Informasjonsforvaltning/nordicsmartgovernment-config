@@ -14,9 +14,7 @@ if (params.deploy_environment == "prod" && params.deploy_environment != params.p
 
 def get_masterversion_location(def env) {
   def env_location = [ "ut1": "${master_versions_location_base}/develop"
-                      ,"st1": "${master_versions_location_base}/deployed/ut1"
-                      ,"it1": "${master_versions_location_base}/deployed/st1"
-                      ,"prod": "${master_versions_location_base}/deployed/it1"
+                      ,"demo": "${master_versions_location_base}/deployed/ut1"
                       ]
   if (env_location.containsKey(env)) {
     return env_location[env]
@@ -29,28 +27,28 @@ def get_masterversion_location(def env) {
 }
 
 def get_project_fom_env(def env){
-  if (env=="prod") {
-    return "nsg-prod"
+  if (env=="demo") {
+    return "nsg-demo"
   } else if (env.startsWith("tmp")) {
     return "nsg-e2e"
   }
   return "nsg-dev"
 }
 def get_host_from_env(def env) {
-  if (env=="prod") {
-    return "www.fellesdatakatalog.brreg.no"
+  if (env=="demo") {
+    return "nsg.fellesdatakatalog.brreg.no"
   } else if (env.startsWith("tmp")) {
-    return "${env}-www.fellesdatakatalog.brreg.no"
+    return "nsg-${env}.fellesdatakatalog.brreg.no"
   }
-  return "www.${env}.fellesdatakatalog.brreg.no"
+  return "msg.${env}.fellesdatakatalog.brreg.no"
 }
 def get_url_from_env(def env) {
-  if (env=="prod") {
-    return "https://www.fellesdatakatalog.brreg.no/"
+  if (env=="demo") {
+    return "https://nsg.fellesdatakatalog.brreg.no/"
   } else if (env.startsWith("tmp")) {
-    return "http://${ingress_ip} (Host: ${env}-www.fellesdatakatalog.brreg.no use ModHeader(chrome) to access.)"
+    return "http://${ingress_ip} (Host: nsg-${env}.fellesdatakatalog.brreg.no use ModHeader(chrome) to access.)"
   }
-  return "https://www.${env}.fellesdatakatalog.brreg.no/"
+  return "https://nsg.${env}.fellesdatakatalog.brreg.no/"
 }
 
 def hash_to_masterversion(String sha) {
@@ -92,8 +90,8 @@ def generate_tag_commands(def outputImagesToTag, def de) {
     if (service_and_tag) {
       def service = service_and_tag[0][1]
       def tag = service_and_tag[0][2]
-      tag_commands.add("gcloud -q container images add-tag ${line} eu.gcr.io/nsg-infra/${service}:env_${de}_latest &")
-      tag_commands.add("gcloud -q container images add-tag ${line} eu.gcr.io/nsg-infra/${service}:env_${de}_${yearmonthdatehhmm} &")
+      tag_commands.add("gcloud -q container images add-tag ${line} eu.gcr.io/fdk-infra/${service}:env_${de}_latest &")
+      tag_commands.add("gcloud -q container images add-tag ${line} eu.gcr.io/fdk-infra/${service}:env_${de}_${yearmonthdatehhmm} &")
     }
   }
   return tag_commands
@@ -248,28 +246,7 @@ node ('helm-kubectl'){
       sh returnStatus: true, script: 'cat kubectlapply.yaml'
     } // stage Authenticating wiht cluster
 
-    if (deploy_environment=='prod') {
-      stage('Backup') {
-        def yearmonthdate = (new Date()).format( 'yyyy-MM-dd-HHmm' )
-
-        def backup_label = "${BUILD_ID}-" + yearmonthdate
-        def backupscript = """
-            gcloud compute --project nsg-prod disks snapshot "nsg-prod-elasticsearch5" --snapshot-names "autogcs-autodeploy-prod-elasticsearch5-${backup_label}" --zone "europe-north1-a &"
-            gcloud compute --project nsg-prod disks snapshot "nsg-prod-fuseki" --snapshot-names "autogcs-autodeploy-prod-fuseki-${backup_label}" --zone "europe-north1-a &"
-            gcloud compute --project nsg-prod disks snapshot "nsg-prod-registration-api" --snapshot-names "autogcs-autodeploy-prod-registration-api-${backup_label}" --zone "europe-north1-a &"
-            gcloud compute --project nsg-prod disks snapshot "nsg-prod-reference-data" --snapshot-names "autogcs-autodeploy-prod-reference-data-${backup_label}" --zone "europe-north1-a &"
-            wait
-            gcloud compute --project nsg-prod snapshots add-labels "autogcs-autodeploy-prod-elasticsearch5-${backup_label}" --labels="snapshotdays="14"" &
-            gcloud compute --project nsg-prod snapshots add-labels "autogcs-autodeploy-prod-fuseki-${backup_label}" --labels="snapshotdays="14"" &
-            gcloud compute --project nsg-prod snapshots add-labels "autogcs-autodeploy-prod-registration-api-${backup_label}" --labels="snapshotdays="14"" &
-            gcloud compute --project nsg-prod snapshots add-labels "autogcs-autodeploy-prod-reference-data-${backup_label}" --labels="snapshotdays="14"" &"""
-            echo "Running: " + backupscript
-
-            wrapper.script(stepName: "Backup prod.",
-                           script: backupscript,
-                           returnStatus: true)
-      }
-    }
+    //backup steg fjernet, siden vi ikke har noen disker i nsg som skal kopieres
 
     stage('Deploy') {
       sh returnStatus: true, script: "gsutil cp kubectlapply.yaml gs://${gcp_project_name}-kubectl/${deploy_environment}-${masterversion}-${BUILD_ID}.yaml"
