@@ -28,7 +28,7 @@ def get_masterversion_location(def env) {
 
 def get_project_fom_env(def env){
   if (env=="demo") {
-    return "nsg-demo"
+    return "nsg-dev"
   } else if (env.startsWith("tmp")) {
     return "nsg-e2e"
   }
