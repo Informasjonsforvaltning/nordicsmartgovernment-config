@@ -20,8 +20,5 @@ spec:
   tls:
   - hosts:
     - {{ required "Missing value NSG_INGRESS_HOSTNAME_ENV" .Values.NSG_INGRESS_HOSTNAME_ENV }}
-    secretName: {{ required "Missing value NSG_CERT_NAME_BASE" .Values.NSG_CERT_NAME_BASE }}
-  - hosts:
-    - {{ required "Missing value NSG_INGRESS_HOSTNAME_ENV" .Values.NSG_INGRESS_HOSTNAME_ENV }}
     secretName: {{ required "Missing value NSG_CERT_NAME_ENV" .Values.NSG_CERT_NAME_ENV }}
 {{ else }} {{ end }}
