@@ -33,5 +33,17 @@ spec:
         resources:
           requests:
             memory: {{ required "Missing value NSG_REFERENCEIMPLEMENTATION_MEMORY" .Values.NSG_REFERENCEIMPLEMENTATION_MEMORY | quote }}
+        livenessProbe:
+          httpGet:
+            path: /invoices/ping
+            port: 8080
+          initialDelaySeconds: 10
+          periodSeconds: 5
+        readinessProbe:
+          httpGet:
+            path: /invoices/ready
+            port: 8080
+          initialDelaySeconds: 10
+          periodSeconds: 5
       restartPolicy: Always
 status: {}
