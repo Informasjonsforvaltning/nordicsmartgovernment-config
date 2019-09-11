@@ -325,8 +325,7 @@ def buildProject(String app, String checksum, String compile, String branch_name
         container('java-docker') {
             withMaven(maven: 'M3') {
               // Hack, remove && ... step.
-              //sh compile.tokenize('&')[0].trim()
-              sh "(${compile})"
+              sh compile.tokenize('&')[0].trim()
             }
         } // container
       } else {
